@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "app.core.configMapName" . }}
+  labels:
+    app: {{ .Release.Name }}
+data:
+  # Database Configuration
+  DB_HOST: {{ .Values.core.database.host | quote }}
+  DB_PORT: {{ .Values.core.database.port | quote }}
+  DB_NAME: {{ .Values.core.database.name | quote }}
+
+  # Gateway JWT
+  AUTH_GATEWAY_JWT_HEADER: {{ .Values.core.gateway.jwtHeader | b64enc | quote }}
