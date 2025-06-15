@@ -25,15 +25,15 @@ import {
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
+  @Get('list/all')
+  async getProjectsByAdminId(@User('uuid') uuid: string) {
+    return this.projectService.getProjectsByAdminId(uuid);
+  }
+
   @Get(':projectId')
   @UseGuards(ProjectGuard)
   async getProjectById(@Param('projectId') projectId: string) {
     return this.projectService.getProjectById(projectId);
-  }
-
-  @Get('list')
-  async getProjectsByAdminId(@User('uuid') uuid: string) {
-    return this.projectService.getProjectsByAdminId(uuid);
   }
 
   @Post('')

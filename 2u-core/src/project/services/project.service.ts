@@ -6,13 +6,13 @@ import {
 import { Project } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from 'src/prisma/services/prisma.service';
-import { MessageService } from 'src/message/services/message.service';
+import { MessageAdminService } from 'src/message/services/admin.service';
 
 @Injectable()
 export class ProjectService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly messageService: MessageService,
+    private readonly messageAdminService: MessageAdminService,
   ) {}
 
   /**
@@ -81,12 +81,6 @@ export class ProjectService {
         where: { adminId },
       });
 
-      if (projects.length === 0) {
-        throw new NotFoundException(
-          `No projects found for admin with ID ${adminId}.`,
-        );
-      }
-
       return projects;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -107,7 +101,7 @@ export class ProjectService {
    */
   async deleteProject(projectId: string): Promise<void> {
     try {
-      await this.messageService.deleteMessagesByProjectId(projectId); // Delete all messages associated with the project
+      await this.messageAdminService.deleteMessagesByProjectId(projectId); // Delete all messages associated with the project
       await this.prisma.project.delete({
         where: { id: projectId },
       }); // Delete the project itself
