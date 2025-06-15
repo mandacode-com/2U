@@ -11,4 +11,4 @@ data:
   DB_NAME: {{ .Values.core.database.name | quote }}
 
   # Gateway JWT
-  AUTH_GATEWAY_JWT_HEADER: {{ .Values.core.gateway.jwtHeader | b64enc | quote }}
+  AUTH_GATEWAY_JWT_HEADER: {{ .Values.core.gateway.jwtHeader | quote }}
