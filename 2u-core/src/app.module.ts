@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ProjectModule } from './project/modules/project.module';
-import { MessageModule } from './message/modules/message.module';
+import { MessageAdminModule } from './message/modules/admin.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Config } from './common/schemas/config.schema';
 import { validate } from './common/config/validate';
 import { ProjectCheckModule } from './project/modules/check.module';
+import { DevController } from './dev.controller';
+import { MessageUserModule } from './message/modules/user.module';
 
 @Module({
   imports: [
@@ -23,9 +25,10 @@ import { ProjectCheckModule } from './project/modules/check.module';
       global: true,
     }),
     ProjectModule,
-    MessageModule,
+    MessageAdminModule,
+    MessageUserModule,
     ProjectCheckModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, DevController],
 })
 export class AppModule {}
