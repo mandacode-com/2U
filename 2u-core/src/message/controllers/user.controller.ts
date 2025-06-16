@@ -3,6 +3,8 @@ import { ZodValidationPipe } from 'src/common/pipes/zod_validation.pipe';
 import {
   ReadMessageBody,
   readMessageBodySchema,
+  UpdateContentBody,
+  updateContentBodySchema,
   UpdatePasswordBody,
   updatePasswordBodySchema,
 } from '../schemas/user.schema';
@@ -35,6 +37,20 @@ export class MessageUserController {
       messageId,
       body.currentPassword,
       body.newPassword,
+      body.newHint,
+    );
+  }
+
+  @Patch(':messageId/content')
+  async updateMessageContent(
+    @Param('messageId') messageId: string,
+    @Body(new ZodValidationPipe(updateContentBodySchema))
+    body: UpdateContentBody,
+  ) {
+    return this.readService.updateContent(
+      messageId,
+      body.password,
+      body.newContent,
     );
   }
 }

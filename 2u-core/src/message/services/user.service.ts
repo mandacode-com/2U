@@ -3,6 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { CredentialService } from 'src/credential/services/credential.service';
 import { PrismaService } from 'src/prisma/services/prisma.service';
@@ -97,11 +98,13 @@ export class MessageUserService {
    * @param messageId - The ID of the message to check.
    * @param currentPassword - The current password of the message.
    * @param newPassword - The new password to set for the message.
+   * @param newHint - Optional new hint for the password.
    */
   async updatePassword(
     messageId: string,
     currentPassword: string,
     newPassword: string,
+    newHint?: string,
   ) {
     try {
       const message = await this.prisma.message.findUnique({
@@ -128,9 +131,59 @@ export class MessageUserService {
 
       await this.prisma.message.update({
         where: { id: messageId },
-        data: { password: hashedNewPassword },
+        data: { password: hashedNewPassword, hint: newHint },
       });
       return;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(`Message with ID ${messageId} not found`);
+        }
+      }
+      throw error; // Re-throw other errors
+    }
+  }
+
+  /**
+   * @description Updates the content of a message by its ID.
+   * @param messageId - The ID of the message to update.
+   * @param password - Optional password to access the message.
+   * @param content - The new content for the message.
+   * @returns The updated message object.
+   */
+  async updateContent(
+    messageId: string,
+    password: string | undefined,
+    content: Prisma.InputJsonValue,
+  ) {
+    try {
+      const message = await this.prisma.message.findUnique({
+        where: { id: messageId },
+      });
+      if (!message) {
+        throw new NotFoundException(`Message with ID ${messageId} not found`);
+      }
+      if (message.password) {
+        if (!password) {
+          throw new UnauthorizedException(
+            'This message is password protected. Please provide a password.',
+          );
+        }
+        const isValidPassword = await this.credentialService.comparePasswords(
+          password,
+          message.password,
+        );
+        if (!isValidPassword) {
+          throw new UnauthorizedException(
+            'Invalid password. Please try again.',
+          );
+        }
+      }
+
+      return this.prisma.message.update({
+        where: { id: messageId },
+        data: { content: content ?? Prisma.JsonNull },
+      });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {

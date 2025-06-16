@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CredentialService } from 'src/credential/services/credential.service';
 import { PrismaService } from 'src/prisma/services/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class MessageAdminService {
@@ -37,7 +38,7 @@ export class MessageAdminService {
    */
   async createMessage(
     projectId: string,
-    content?: string,
+    content?: Prisma.InputJsonValue,
     messageId?: string,
     initialPassword?: string,
     hint?: string,
@@ -51,7 +52,7 @@ export class MessageAdminService {
       data: {
         id: messageId,
         projectId,
-        content: content || '',
+        content: content ?? Prisma.JsonNull,
         password: hashedPassword,
         hint: hint,
       },
@@ -68,7 +69,7 @@ export class MessageAdminService {
    */
   async updateMessage(
     messageId: string,
-    content?: string,
+    content?: Prisma.InputJsonValue,
     password?: string,
     hint?: string,
   ) {
@@ -85,9 +86,9 @@ export class MessageAdminService {
     return this.prisma.message.update({
       where: { id: messageId },
       data: {
-        content: content || existingMessage.content,
+        content: content ?? existingMessage.content ?? Prisma.JsonNull,
         password: hashedPassword || existingMessage.password,
-        hint: hint || existingMessage.hint,
+        hint: hint ?? existingMessage.hint,
       },
     });
   }
