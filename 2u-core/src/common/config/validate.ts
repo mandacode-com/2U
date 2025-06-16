@@ -8,6 +8,13 @@ const parseIntIfExists = (value: string | undefined) => {
   return isNaN(parsedValue) ? undefined : parsedValue;
 };
 
+const parseBooleanIfExists = (value: string | undefined) => {
+  if (value === undefined) {
+    return undefined;
+  }
+  return value.toLowerCase() === 'true';
+};
+
 export function validate(raw: Record<string, unknown>) {
   const env: Config = {
     server: {
@@ -17,6 +24,13 @@ export function validate(raw: Record<string, unknown>) {
     auth: {
       gatewayJwtSecret: raw.AUTH_GATEWAY_JWT_SECRET as string,
       gatewayJwtHeader: raw.AUTH_GATEWAY_JWT_HEADER as string,
+    },
+    cors: {
+      origin: raw.CORS_ORIGIN as string,
+      methods: raw.CORS_METHODS as string,
+      credentials: parseBooleanIfExists(
+        raw.CORS_CREDENTIALS as string,
+      ) as boolean,
     },
   };
 
