@@ -13,12 +13,28 @@ core:
     jwtSecret: "supersecret"
     jwtHeader: "x-gateway-jwt"
 
+  cors:
+    origin: "*"
+    methods: "GET,POST,PUT,DELETE,OPTIONS"
+    credentials: true
+
+  storage:
+    enabled: true
+    storageClassName: "cephfs-rwx"
+    size: "10Gi"
+    accessMode: ReadWriteMany
+    path: "/app/uploads"
+    maxFileSize: 10485760 # 10 MB
+    allowedFileTypes:
+      - "image/png"
+      - "image/jpeg"
+
   replicaCount: 1
 
   image:
     repository: registry.mandacode.com/2u/2u-core
     pullPolicy: IfNotPresent
-    tag: "0.1.0-dev.0"
+    tag: "0.1.0"
     port: 3000
 
   imagePullSecrets:
@@ -37,8 +53,10 @@ core:
   podLabels: {}
 
   podSecurityContext:
-    {}
-    # fsGroup: 2000
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: "OnRootMismatch"
 
   securityContext: {}
 
@@ -76,19 +94,6 @@ core:
     maxReplicas: 100
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
-
-  # Additional volumes on the output Deployment definition.
-  volumes: []
-  # - name: foo
-  #   secret:
-  #     secretName: mysecret
-  #     optional: false
-
-  # Additional volumeMounts on the output Deployment definition.
-  volumeMounts: []
-  # - name: foo
-  #   mountPath: "/etc/foo"
-  #   readOnly: true
 
   nodeSelector: {}
 

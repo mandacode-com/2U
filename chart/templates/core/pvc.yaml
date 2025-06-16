@@ -1,0 +1,13 @@
+{{- if .Values.core.storage.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "app.core.fullname" . }}-upload-pvc
+spec:
+  accessModes:
+    - {{ .Values.core.storage.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.core.storage.size }}
+  storageClassName: {{ .Values.core.storage.storageClassName }}
+{{- end }}

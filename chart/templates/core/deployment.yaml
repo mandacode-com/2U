@@ -35,6 +35,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 
+      {{- if .Values.core.storage.enabled }}
+      volumes:
+        - name: upload-storage
+          persistentVolumeClaim:
+            claimName: {{ include "app.core.fullname" . }}-upload-pvc
+      {{- end }}
+
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -59,9 +66,10 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.core.volumeMounts }}
+          {{- if .Values.core.storage.enabled }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
+            - name: upload-storage
+              mountPath: {{ .Values.core.storage.path }}
           {{- end }}
           envFrom:
             - configMapRef:
@@ -99,10 +107,6 @@ spec:
 
             - name: DATABASE_URL
               value: "postgres://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
-      {{- with .Values.core.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- with .Values.core.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
