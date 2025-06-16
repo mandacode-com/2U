@@ -18,3 +18,8 @@ export const updateContentBodySchema = z.object({
   newContent: TipTapDocumentSchema,
 });
 export type UpdateContentBody = z.infer<typeof updateContentBodySchema>;
+
+export const uploadImageBodySchema = z.object({
+  password: z.string().optional(),
+});
+export type UploadImageBody = z.infer<typeof uploadImageBodySchema>;

@@ -9,6 +9,8 @@ import { validate } from './common/config/validate';
 import { ProjectCheckModule } from './project/modules/check.module';
 import { DevController } from './dev.controller';
 import { MessageUserModule } from './message/modules/user.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @Module({
   imports: [
@@ -23,6 +25,24 @@ import { MessageUserModule } from './message/modules/user.module';
         global: true,
       }),
       global: true,
+    }),
+    MulterModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Config, true>) => ({
+        storage: memoryStorage(),
+        limits: {
+          fileSize: config.get<Config['storage']>('storage').maxFileSize,
+        },
+        fileFilter: (req, file, callback) => {
+          const allowedTypes =
+            config.get<Config['storage']>('storage').allowedFileTypes;
+          if (allowedTypes.includes(file.mimetype)) {
+            callback(null, true);
+          } else {
+            callback(new Error('Invalid file type'), false);
+          }
+        },
+      }),
     }),
     ProjectModule,
     MessageAdminModule,

@@ -32,6 +32,16 @@ export function validate(raw: Record<string, unknown>) {
         raw.CORS_CREDENTIALS as string,
       ) as boolean,
     },
+    storage: {
+      path: raw.STORAGE_PATH as string,
+      maxFileSize: parseIntIfExists(
+        raw.STORAGE_MAX_FILE_SIZE as string,
+      ) as number,
+      allowedFileTypes:
+        (raw.STORAGE_ALLOWED_FILE_TYPES as string)
+          ?.split(',')
+          .map((type) => type.trim()) || [],
+    },
   };
 
   const parsedEnv = configSchema.parse(env);

@@ -193,4 +193,43 @@ export class MessageUserService {
       throw error; // Re-throw other errors
     }
   }
+
+  /**
+   * Verifies the password for a message.
+   * @param messageId - The ID of the message to verify.
+   * @param password - The password to verify against the message.
+   * @returns True if the password matches, false otherwise.
+   */
+  async verifyMessagePassword(
+    messageId: string,
+    password?: string,
+  ): Promise<boolean> {
+    try {
+      const message = await this.prisma.message.findUnique({
+        where: { id: messageId },
+      });
+      if (!message) {
+        throw new NotFoundException(`Message with ID ${messageId} not found`);
+      }
+      if (!message.password) {
+        return true; // No password set, access granted
+      }
+      if (!password) {
+        throw new UnauthorizedException(
+          'This message is password protected. Please provide a password.',
+        );
+      }
+      return this.credentialService.comparePasswords(
+        password,
+        message.password,
+      );
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(`Message with ID ${messageId} not found`);
+        }
+      }
+      throw error; // Re-throw other errors
+    }
+  }
 }
