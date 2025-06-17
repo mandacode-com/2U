@@ -23,3 +23,4 @@ CREATE TABLE "projects" (
 
     CONSTRAINT "projects_pkey" PRIMARY KEY ("id")
 );
+
