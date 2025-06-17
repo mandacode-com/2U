@@ -26,7 +26,16 @@ export class MessageAdminController {
   @Get('list/:projectId')
   @UseGuards(AuthGuard, ProjectGuard)
   async getMessagesByProjectId(@Param('projectId') projectId: string) {
-    return this.adminService.getMessagesByProjectId(projectId);
+    const info = await this.adminService.getMessagesByProjectId(projectId);
+    return info.map((message) => ({
+      id: message.id,
+      from: message.from,
+      to: message.to,
+      hint: message.hint,
+      projectId: message.projectId,
+      createdAt: message.createdAt,
+      updatedAt: message.updatedAt,
+    }));
   }
 
   @Post(':projectId')
@@ -36,12 +45,22 @@ export class MessageAdminController {
     @Body(new ZodValidationPipe(createMessageBodySchema))
     body: CreateMessageBody,
   ) {
-    return this.adminService.createMessage(
+    const message = await this.adminService.createMessage({
       projectId,
-      body.content,
-      body.messageId,
-      body.initialPassword,
-    );
+      content: body.content,
+      messageId: body.messageId,
+      initialPassword: body.initialPassword,
+      from: body.from,
+      to: body.to,
+    });
+    return {
+      id: message.id,
+      createdAt: message.createdAt,
+      updatedAt: message.updatedAt,
+      hint: message.hint,
+      from: message.from,
+      to: message.to,
+    };
   }
 
   @Patch(':messageId')
@@ -51,22 +70,27 @@ export class MessageAdminController {
     @Body(new ZodValidationPipe(updateMessageBodySchema))
     body: UpdateMessageBody,
   ) {
-    return this.adminService.updateMessage(
+    return this.adminService.updateMessage({
       messageId,
-      body.content,
-      body.password,
-    );
+      content: body.content,
+      password: body.password,
+      hint: body.hint,
+      from: body.from,
+      to: body.to,
+    });
   }
 
   @Delete(':projectId/:messageId')
   @UseGuards(AuthGuard, ProjectGuard)
   async deleteMessage(@Param('messageId') messageId: string) {
-    return this.adminService.deleteMessage(messageId);
+    await this.adminService.deleteMessage(messageId);
+    return { message: 'Message deleted successfully' };
   }
 
   @Delete(':projectId')
   @UseGuards(AuthGuard, ProjectGuard)
   async deleteMessagesByProjectId(@Param('projectId') projectId: string) {
-    return this.adminService.deleteMessagesByProjectId(projectId);
+    await this.adminService.deleteMessagesByProjectId(projectId);
+    return { message: 'Messages deleted successfully' };
   }
 }

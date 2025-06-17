@@ -14,8 +14,6 @@ import { ZodValidationPipe } from 'src/common/pipes/zod_validation.pipe';
 import {
   ReadMessageBody,
   readMessageBodySchema,
-  UpdateContentBody,
-  updateContentBodySchema,
   UpdatePasswordBody,
   updatePasswordBodySchema,
   UploadImageBody,
@@ -26,6 +24,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { StorageService } from 'src/storage/services/storage.service';
 import { Response } from 'express';
 import { messageStorageName } from 'src/common/storage_path';
+import {
+  UpdateMessageBody,
+  updateMessageBodySchema,
+} from '../schemas/admin.schema';
 
 @Controller('message')
 export class MessageUserController {
@@ -36,7 +38,15 @@ export class MessageUserController {
 
   @Get(':messageId')
   async getMessageInfo(@Param('messageId') messageId: string) {
-    return this.readService.getMessageInfo(messageId);
+    const info = await this.readService.getMessageInfo(messageId);
+    return {
+      id: info.id,
+      createdAt: info.createdAt,
+      updatedAt: info.updatedAt,
+      hint: info.hint,
+      from: info.from,
+      to: info.to,
+    };
   }
 
   @Post(':messageId')
@@ -44,7 +54,39 @@ export class MessageUserController {
     @Param('messageId') messageId: string,
     @Body(new ZodValidationPipe(readMessageBodySchema)) body: ReadMessageBody,
   ) {
-    return this.readService.readMessage(messageId, body.password);
+    const message = await this.readService.readMessage(
+      messageId,
+      body.password,
+    );
+    return {
+      id: message.id,
+      content: message.content,
+      createdAt: message.createdAt,
+      updatedAt: message.updatedAt,
+      hint: message.hint,
+      from: message.from,
+      to: message.to,
+    };
+  }
+
+  @Patch(':messageId')
+  async updateMessage(
+    @Param('messageId') messageId: string,
+    @Body(new ZodValidationPipe(updateMessageBodySchema))
+    body: UpdateMessageBody,
+  ) {
+    await this.readService.updateMessage({
+      messageId,
+      content: body.content,
+      password: body.password,
+      hint: body.hint,
+      from: body.from,
+      to: body.to,
+    });
+
+    return {
+      message: 'Message updated successfully',
+    };
   }
 
   @Patch(':messageId/password')
@@ -53,25 +95,15 @@ export class MessageUserController {
     @Body(new ZodValidationPipe(updatePasswordBodySchema))
     body: UpdatePasswordBody,
   ) {
-    return this.readService.updatePassword(
+    await this.readService.updatePassword({
       messageId,
-      body.currentPassword,
-      body.newPassword,
-      body.newHint,
-    );
-  }
-
-  @Patch(':messageId/content')
-  async updateMessageContent(
-    @Param('messageId') messageId: string,
-    @Body(new ZodValidationPipe(updateContentBodySchema))
-    body: UpdateContentBody,
-  ) {
-    return this.readService.updateContent(
-      messageId,
-      body.password,
-      body.newContent,
-    );
+      currentPassword: body.currentPassword,
+      newPassword: body.newPassword,
+      newHint: body.newHint,
+    });
+    return {
+      message: 'Password updated successfully',
+    };
   }
 
   @Get(':messageId/image')
@@ -104,6 +136,10 @@ export class MessageUserController {
       );
     }
 
-    return this.storageService.uploadFile(file, messageStorageName, messageId);
+    await this.storageService.uploadFile(file, messageStorageName, messageId);
+    return {
+      message: 'Image uploaded successfully',
+      fileName: file.originalname,
+    };
   }
 }

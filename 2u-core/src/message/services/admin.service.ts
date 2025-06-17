@@ -19,6 +19,10 @@ export class MessageAdminService {
     return this.prisma.message.findMany({
       select: {
         id: true,
+        from: true,
+        to: true,
+        hint: true,
+        projectId: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -29,68 +33,83 @@ export class MessageAdminService {
 
   /**
    * Creates a new message for a given project ID.
-   * @param projectId - The ID of the project to create the message for.
-   * @param content - The content of the message.
-   * @param messageId - Optional ID for the message.
-   * @param initialPassword - Optional initial password for the message.
-   * @param hint - Optional hint for the password.
+   * @param data - The data for the new message.
    * @returns The created message object.
    */
-  async createMessage(
-    projectId: string,
-    content?: Prisma.InputJsonValue,
-    messageId?: string,
-    initialPassword?: string,
-    hint?: string,
-  ) {
+  async createMessage(data: {
+    projectId: string;
+    from?: string;
+    to?: string;
+    content?: Prisma.InputJsonValue;
+    messageId?: string;
+    initialPassword?: string;
+    hint?: string;
+  }) {
     let hashedPassword: string | undefined = undefined;
-    if (initialPassword) {
-      hashedPassword =
-        await this.credentialService.hashPassword(initialPassword);
+    if (data.initialPassword) {
+      hashedPassword = await this.credentialService.hashPassword(
+        data.initialPassword,
+      );
     }
-    return this.prisma.message.create({
+    const message = await this.prisma.message.create({
       data: {
-        id: messageId,
-        projectId,
-        content: content ?? Prisma.JsonNull,
+        id: data.messageId,
+        projectId: data.projectId,
+        content: data.content ?? Prisma.JsonNull,
         password: hashedPassword,
-        hint: hint,
+        hint: data.hint,
+        from: data.from,
+        to: data.to,
       },
     });
+
+    return {
+      id: message.id,
+      from: message.from,
+      to: message.to,
+      hint: message.hint,
+      projectId: message.projectId,
+      createdAt: message.createdAt,
+      updatedAt: message.updatedAt,
+    };
   }
 
   /**
    * Updates an existing message by its ID.
-   * @param messageId - The ID of the message to update.
-   * @param content - Optional new content for the message.
-   * @param password - Optional new password for the message.
-   * @param hint - Optional new hint for the password.
+   * @param data - The data containing the message ID and optional fields to update.
    * @returns The updated message object.
    */
-  async updateMessage(
-    messageId: string,
-    content?: Prisma.InputJsonValue,
-    password?: string,
-    hint?: string,
-  ) {
+  async updateMessage(data: {
+    messageId: string;
+    content?: Prisma.InputJsonValue;
+    password?: string;
+    hint?: string;
+    from?: string;
+    to?: string;
+  }) {
     let hashedPassword: string | undefined = undefined;
-    if (password) {
-      hashedPassword = await this.credentialService.hashPassword(password);
+    if (data.password) {
+      hashedPassword = await this.credentialService.hashPassword(data.password);
     }
     const existingMessage = await this.prisma.message.findUnique({
-      where: { id: messageId },
+      where: { id: data.messageId },
     });
     if (!existingMessage) {
-      throw new NotFoundException(`Message with ID ${messageId} not found`);
+      throw new NotFoundException(
+        `Message with ID ${data.messageId} not found`,
+      );
     }
-    return this.prisma.message.update({
-      where: { id: messageId },
+    await this.prisma.message.update({
+      where: { id: data.messageId },
       data: {
-        content: content ?? existingMessage.content ?? Prisma.JsonNull,
-        password: hashedPassword || existingMessage.password,
-        hint: hint ?? existingMessage.hint,
+        content: data.content ?? existingMessage.content ?? Prisma.JsonNull,
+        password: hashedPassword ?? existingMessage.password,
+        hint: data.hint ?? existingMessage.hint,
+        from: data.from ?? existingMessage.from,
+        to: data.to ?? existingMessage.to,
       },
     });
+    return;
   }
 
   /**
@@ -98,9 +117,10 @@ export class MessageAdminService {
    * @param messageId - The ID of the message to delete.
    */
   async deleteMessage(messageId: string) {
-    return this.prisma.message.delete({
+    await this.prisma.message.delete({
       where: { id: messageId },
     });
+    return;
   }
 
   /**
@@ -108,8 +128,9 @@ export class MessageAdminService {
    * @param projectId - The ID of the project whose messages should be deleted.
    */
   async deleteMessagesByProjectId(projectId: string) {
-    return this.prisma.message.deleteMany({
+    await this.prisma.message.deleteMany({
       where: { projectId },
     });
+    return;
   }
 }

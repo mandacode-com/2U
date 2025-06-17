@@ -16,7 +16,7 @@ export class MessageUserService {
   ) {}
 
   /**
-   * Retrieves message information by its ID.
+   * @description Retrieves information about a message by its ID.
    * @param messageId - The ID of the message to retrieve.
    * @returns The message information including id, createdAt, updatedAt, and hint.
    */
@@ -29,6 +29,8 @@ export class MessageUserService {
           createdAt: true,
           updatedAt: true,
           hint: true,
+          from: true,
+          to: true,
         },
       });
       if (!message) {
@@ -47,7 +49,7 @@ export class MessageUserService {
   }
 
   /**
-   * Reads a message by its ID, optionally checking for a password.
+   * @description Reads a message by its ID.
    * @param messageId - The ID of the message to read.
    * @param password - Optional password to access the message.
    * @returns The message content and metadata if accessible.
@@ -82,6 +84,9 @@ export class MessageUserService {
         content: message.content,
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
+        from: message.from,
+        to: message.to,
+        hint: message.hint,
       };
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -95,23 +100,22 @@ export class MessageUserService {
 
   /**
    * Update the password for a message.
-   * @param messageId - The ID of the message to check.
-   * @param currentPassword - The current password of the message.
-   * @param newPassword - The new password to set for the message.
-   * @param newHint - Optional new hint for the password.
+   * @param data - The data containing the message ID, current password, new password, and optional new hint.
    */
-  async updatePassword(
-    messageId: string,
-    currentPassword: string,
-    newPassword: string,
-    newHint?: string,
-  ) {
+  async updatePassword(data: {
+    messageId: string;
+    currentPassword: string;
+    newPassword: string;
+    newHint?: string;
+  }) {
     try {
       const message = await this.prisma.message.findUnique({
-        where: { id: messageId },
+        where: { id: data.messageId },
       });
       if (!message) {
-        throw new NotFoundException(`Message with ID ${messageId} not found`);
+        throw new NotFoundException(
+          `Message with ID ${data.messageId} not found`,
+        );
       }
       if (!message.password) {
         throw new UnauthorizedException(
@@ -119,25 +123,32 @@ export class MessageUserService {
         );
       }
       const isValidPassword = await this.credentialService.comparePasswords(
-        currentPassword,
+        data.currentPassword,
         message.password,
       );
       if (!isValidPassword) {
         throw new UnauthorizedException('Invalid current password.');
       }
 
-      const hashedNewPassword =
-        await this.credentialService.hashPassword(newPassword);
+      const hashedNewPassword = await this.credentialService.hashPassword(
+        data.newPassword,
+      );
 
       await this.prisma.message.update({
-        where: { id: messageId },
-        data: { password: hashedNewPassword, hint: newHint },
+        omit: {
+          content: true,
+          password: true,
+        },
+        where: { id: data.messageId },
+        data: { password: hashedNewPassword, hint: data.newHint },
       });
       return;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new NotFoundException(`Message with ID ${messageId} not found`);
+          throw new NotFoundException(
+            `Message with ID ${data.messageId} not found`,
+          );
         }
       }
       throw error; // Re-throw other errors
@@ -145,49 +156,55 @@ export class MessageUserService {
   }
 
   /**
-   * @description Updates the content of a message by its ID.
-   * @param messageId - The ID of the message to update.
-   * @param password - Optional password to access the message.
-   * @param content - The new content for the message.
-   * @returns The updated message object.
+   * @description Updates a message by its ID.
+   * @param data - The data containing the message ID and optional fields to update.
    */
-  async updateContent(
-    messageId: string,
-    password: string | undefined,
-    content: Prisma.InputJsonValue,
-  ) {
+  async updateMessage(data: {
+    messageId: string;
+    content?: Prisma.InputJsonValue;
+    password?: string;
+    hint?: string;
+    from?: string;
+    to?: string;
+  }) {
     try {
-      const message = await this.prisma.message.findUnique({
-        where: { id: messageId },
+      const existingMessage = await this.prisma.message.findUnique({
+        where: { id: data.messageId },
       });
-      if (!message) {
-        throw new NotFoundException(`Message with ID ${messageId} not found`);
-      }
-      if (message.password) {
-        if (!password) {
-          throw new UnauthorizedException(
-            'This message is password protected. Please provide a password.',
-          );
-        }
-        const isValidPassword = await this.credentialService.comparePasswords(
-          password,
-          message.password,
+      if (!existingMessage) {
+        throw new NotFoundException(
+          `Message with ID ${data.messageId} not found`,
         );
-        if (!isValidPassword) {
-          throw new UnauthorizedException(
-            'Invalid password. Please try again.',
-          );
-        }
       }
 
-      return this.prisma.message.update({
-        where: { id: messageId },
-        data: { content: content ?? Prisma.JsonNull },
+      let hashedPassword: string | undefined = undefined;
+      if (data.password) {
+        hashedPassword = await this.credentialService.hashPassword(
+          data.password,
+        );
+      }
+
+      await this.prisma.message.update({
+        omit: {
+          content: true,
+          password: true,
+        },
+        where: { id: data.messageId },
+        data: {
+          content: data.content ?? existingMessage.content ?? Prisma.JsonNull,
+          password: hashedPassword ?? existingMessage.password,
+          hint: data.hint ?? existingMessage.hint,
+          from: data.from ?? existingMessage.from,
+          to: data.to ?? existingMessage.to,
+        },
       });
+      return;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new NotFoundException(`Message with ID ${messageId} not found`);
+          throw new NotFoundException(
+            `Message with ID ${data.messageId} not found`,
+          );
         }
       }
       throw error; // Re-throw other errors

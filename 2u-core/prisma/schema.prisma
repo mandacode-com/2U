@@ -10,6 +10,8 @@ datasource db {
 
 model Message {
   id        String  @id @default(uuid())
+  from      String?
+  to        String?
   content   Json    @db.JsonB
   projectId String  @map("project_id")
   password  String?

@@ -13,11 +13,13 @@ export const updatePasswordBodySchema = z.object({
 });
 export type UpdatePasswordBody = z.infer<typeof updatePasswordBodySchema>;
 
-export const updateContentBodySchema = z.object({
+export const updateMessageBodySchema = z.object({
+  content: TipTapDocumentSchema.optional(),
   password: z.string().optional(),
-  newContent: TipTapDocumentSchema,
+  hint: z.string().optional(),
+  from: z.string().optional(),
+  to: z.string().optional(),
 });
-export type UpdateContentBody = z.infer<typeof updateContentBodySchema>;
 
 export const uploadImageBodySchema = z.object({
   password: z.string().optional(),
