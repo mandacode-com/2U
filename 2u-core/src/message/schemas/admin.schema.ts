@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { TipTapDocumentSchema } from './content.schema';
 
 export const createMessageBodySchema = z.object({
-  content: z.string().optional(),
+  content: TipTapDocumentSchema,
   messageId: z.string().optional(),
   initialPassword: z.string().optional(),
   from: z.string().optional(),
@@ -10,7 +11,7 @@ export const createMessageBodySchema = z.object({
 export type CreateMessageBody = z.infer<typeof createMessageBodySchema>;
 
 export const updateMessageBodySchema = z.object({
-  content: z.string().min(1, 'Message content is required'),
+  content: TipTapDocumentSchema.optional(),
   password: z.string().optional(),
   hint: z.string().optional(),
   from: z.string().optional(),

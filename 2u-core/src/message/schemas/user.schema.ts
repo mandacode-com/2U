@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { TipTapDocumentSchema } from './content.schema';
 
 export const readMessageBodySchema = z.object({
@@ -20,6 +21,7 @@ export const updateMessageBodySchema = z.object({
   from: z.string().optional(),
   to: z.string().optional(),
 });
+export type UpdateMessageBody = z.infer<typeof updateMessageBodySchema>;
 
 export const uploadImageBodySchema = z.object({
   password: z.string().optional(),

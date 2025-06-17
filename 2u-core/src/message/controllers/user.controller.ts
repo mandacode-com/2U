@@ -14,6 +14,8 @@ import { ZodValidationPipe } from 'src/common/pipes/zod_validation.pipe';
 import {
   ReadMessageBody,
   readMessageBodySchema,
+  UpdateMessageBody,
+  updateMessageBodySchema,
   UpdatePasswordBody,
   updatePasswordBodySchema,
   UploadImageBody,
@@ -24,10 +26,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { StorageService } from 'src/storage/services/storage.service';
 import { Response } from 'express';
 import { messageStorageName } from 'src/common/storage_path';
-import {
-  UpdateMessageBody,
-  updateMessageBodySchema,
-} from '../schemas/admin.schema';
 
 @Controller('message')
 export class MessageUserController {
