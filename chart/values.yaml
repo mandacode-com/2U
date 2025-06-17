@@ -8,6 +8,12 @@ core:
       username: "admin"
       password: "password"
 
+    migrate:
+      image:
+        repository: registry.mandacode.com/2u/2u-core-db-migrate
+        pullPolicy: IfNotPresent
+        tag: "0.1.0"
+
   gateway:
     existingSecret: ""
     jwtSecret: "supersecret"

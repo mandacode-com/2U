@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "app.core.fullname" . }}-db-migrate
+  labels:
+    {{- include "app.core.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      {{- with .Values.core.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: "{{ .Values.core.database.migrate.image.repository }}:{{ .Values.core.database.migrate.image.tag }}"
+          imagePullPolicy: {{ .Values.core.database.migrate.image.pullPolicy }}
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "app.core.database.secretName" . }}
+                  key: DB_USER
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "app.core.database.secretName" . }}
+                  key: DB_PASS
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "app.core.configMapName" . }}
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "app.core.configMapName" . }}
+                  key: DB_PORT
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "app.core.configMapName" . }}
+                  key: DB_NAME
+          command:
+            - sh
+            - -c
+            - |
+              export DATABASE_URL="postgres://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}" && \
+              npx prisma migrate deploy
