@@ -1,11 +1,3 @@
-{{- define "app.name" }}
-{{- if .Values.nameOverride }}
-{{- .Values.nameOverride | trunc 63 | trimSuffix "-" }}
-{{- else -}}
-toyou
-{{- end -}}
-{{- end }}
-
 {{/*
 Secret Name for core Database
 */}}
@@ -58,7 +50,6 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "app.core.labels" -}}
-helm.sh/chart: {{ include "app.core.chart" . }}
 {{ include "app.core.selectorLabels" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
