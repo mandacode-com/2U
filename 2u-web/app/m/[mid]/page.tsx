@@ -1,6 +1,7 @@
 import { getMessage } from "@/lib/api/message";
 import MessageView from "./view";
 import { getMessageDataSchema } from "@/lib/api/schemas/message.schema";
+import { notFound } from "next/navigation";
 
 export default async function Page({
   params,
@@ -9,8 +10,11 @@ export default async function Page({
 }) {
   const { mid } = await params;
 
-  if (mid.endsWith(".map")) {
-    throw new Error("Invalid message ID format");
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (!uuidRegex.test(mid)) {
+    notFound();
   }
 
   const messageMeta = await getMessage(mid);

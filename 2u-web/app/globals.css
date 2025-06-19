@@ -20,3 +20,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+html:not(.font-loaded) body {
+  @apply invisible;
+}
+
+html.font-loaded body {
+  @apply visible;
+}

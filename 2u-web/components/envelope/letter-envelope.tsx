@@ -1,6 +1,6 @@
 "use client";
 
-import "@/components/message/letter-envelope.scss";
+import "@/components/envelope/letter-envelope.scss";
 import Image from "next/image";
 
 type LetterEnvelopeProps = {

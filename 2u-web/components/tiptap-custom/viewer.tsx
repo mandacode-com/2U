@@ -2,7 +2,6 @@ import { Content, EditorContent, useEditor } from "@tiptap/react";
 
 // --- Extensions ---
 import { StarterKit } from "@tiptap/starter-kit";
-import { Image } from "@tiptap/extension-image";
 import { TaskItem } from "@tiptap/extension-task-item";
 import { TaskList } from "@tiptap/extension-task-list";
 import { TextAlign } from "@tiptap/extension-text-align";
@@ -15,6 +14,7 @@ import { Link as TipTapLink } from "@/components/tiptap-extension/link-extension
 import { Selection } from "@/components/tiptap-extension/selection-extension";
 import { TrailingNode } from "@/components/tiptap-extension/trailing-node-extension";
 import ImageResize from "tiptap-extension-resize-image";
+import { ongl } from "@/lib/fonts/fonts";
 
 type Props = {
   mid: string;
@@ -42,14 +42,14 @@ export default function MessageViewer({ mid, content }: Props) {
     editable: false,
     editorProps: {
       attributes: {
-        class: "bg-transparent prose prose-lg leading-[1.75]",
+        class: `w-full leading-[1.75] text-gray-900 ${ongl.className} text-[1.25rem] sm:text-[1.5rem]`,
       },
     },
     immediatelyRender: false,
   });
 
   return (
-    <div className="relative mx-auto my-10 max-w-3xl p-10 bg-[#fffdf5] shadow-lg border border-[#e0dccc] rounded-md overflow-hidden">
+    <div className="relative px-6 py-10 bg-[#fffdf5] shadow-lg border border-[#e0dccc] rounded-md overflow-hidden w-full h-full min-h-[600px]">
       {/* Vertical lines */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         {Array.from({ length: 60 }).map((_, idx) => (
@@ -66,7 +66,7 @@ export default function MessageViewer({ mid, content }: Props) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10">
+      <div className="z-10">
         <EditorContent editor={editor} />
       </div>
     </div>

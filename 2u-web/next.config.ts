@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [new URL("https://2u.mandacode.com/api/**")],
   },
+  productionBrowserSourceMaps: false
 };
 
 export default nextConfig;

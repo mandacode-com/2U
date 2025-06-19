@@ -45,14 +45,12 @@ export default function MessageEditPageView({ mid, messageMeta }: Props) {
       const data = await result.json();
       const parsedData = readMessageDataSchema.safeParse(data);
       if (!parsedData.success) {
-        console.error("Invalid message data format:", parsedData.error);
         throw new Error("메시지 데이터 형식이 잘못되었습니다.");
       }
 
       setMessage(parsedData.data.content ?? null);
       setError(null);
     } catch (err) {
-      console.error("Error fetching message:", err);
       setError("비밀번호가 틀렸거나 메시지를 가져올 수 없습니다.");
       setMessage(null);
     } finally {
