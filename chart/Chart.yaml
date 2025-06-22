@@ -1,0 +1,7 @@
+apiVersion: v2
+name: 2u
+description: 2U application helm chart
+
+type: application
+
+version: 0.1.0-dev.15

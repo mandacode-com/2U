@@ -1,0 +1,66 @@
+.polka-dot {
+  background-color: #fffaf0;
+  background-image: 
+    radial-gradient(#ffb3ba 2px, transparent 2px),
+    radial-gradient(#bae1ff 2px, transparent 2px),
+    radial-gradient(#baffc9 2px, transparent 2px),
+    radial-gradient(#ffffba 2px, transparent 2px);
+  background-size: 40px 40px;
+  background-position:
+    0 0, 10px 10px, 20px 20px, 30px 30px;
+  background-repeat: repeat;
+}
+
+.pastel-grid {
+  background-color: #fffaf0;
+  background-image: linear-gradient(#ffe0e0 1px, transparent 1px),
+                    linear-gradient(to right, #ffe0e0 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.rainbow-stripe {
+  background: repeating-linear-gradient(
+    45deg,
+    #ff9a9e 0px,
+    #ff9a9e 20px,
+    #fad0c4 20px,
+    #fad0c4 40px,
+    #fbc2eb 40px,
+    #fbc2eb 60px
+  );
+}
+
+.hearts {
+  background-color: #fffafc;
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='pink' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8 13S3 9 3 5.5C3 3.57 4.57 2 6.5 2C7.41 2 8.25 2.5 8.63 3.32C9.01 2.5 9.85 2 10.75 2C12.68 2 14.25 3.57 14.25 5.5C14.25 9 9.5 13 9.5 13H8Z'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
+  background-repeat: repeat;
+}
+
+.clouds {
+  background-color: #cceeff;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' fill='skyblue' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='20'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 100px 100px;
+}
+
+.fabric {
+  background-color: #fdf6e3;
+  background-image: repeating-linear-gradient(
+    45deg,
+    #fdf6e3 0,
+    #fdf6e3 2px,
+    #eee8d5 2px,
+    #eee8d5 4px
+  );
+}
+
+.candy {
+  background: repeating-linear-gradient(
+    135deg,
+    #ffe4e6,
+    #ffe4e6 10px,
+    #fbcfe8 10px,
+    #fbcfe8 20px
+  );
+}

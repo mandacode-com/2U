@@ -1,0 +1,190 @@
+core:
+  database:
+    existingSecret: ""
+    host: "localhost"
+    port: 5432
+    name: "2u_core"
+    auth:
+      username: "admin"
+      password: "password"
+
+    migrate:
+      image:
+        repository: registry.mandacode.com/2u/2u-core-db-migrate
+        pullPolicy: IfNotPresent
+        tag: "0.1.0"
+
+  gateway:
+    existingSecret: ""
+    jwtSecret: "supersecret"
+    jwtHeader: "x-gateway-jwt"
+
+  cors:
+    origin: "*"
+    methods: "GET,POST,PUT,DELETE,OPTIONS"
+    credentials: true
+
+  storage:
+    enabled: true
+    storageClassName: "cephfs-rwx"
+    size: "10Gi"
+    accessMode: ReadWriteMany
+    path: "/app/uploads"
+    maxFileSize: 10485760 # 10 MB
+    allowedFileTypes:
+      - "image/png"
+      - "image/jpeg"
+
+  replicaCount: 1
+
+  image:
+    repository: registry.mandacode.com/2u/2u-core
+    pullPolicy: IfNotPresent
+    tag: "0.1.0"
+    port: 3000
+
+  imagePullSecrets:
+    - name: regcred
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  podSecurityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: "OnRootMismatch"
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 3000
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 3000
+
+  # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+  autoscaling:
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  config:
+    existingConfigMap: ""
+
+web:
+  api:
+    base: "https://2u.mandacode.com/api"
+
+  replicaCount: 1
+
+  image:
+    repository: registry.mandacode.com/2u/2u-web
+    pullPolicy: IfNotPresent
+    tag: "0.1.0"
+    port: 3000
+
+  imagePullSecrets:
+    - name: regcred
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  serviceAccount:
+    create: true
+    automount: true
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+  podLabels: {}
+
+  podSecurityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: "OnRootMismatch"
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
+
+  # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+  autoscaling:
+    enabled: false
+    minReplicas: 3
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  config:
+    existingConfigMap: ""

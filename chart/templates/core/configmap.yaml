@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "app.core.configMapName" . }}
+  labels:
+    app: {{ .Release.Name }}
+data:
+  # Database Configuration
+  DB_HOST: {{ .Values.core.database.host | quote }}
+  DB_PORT: {{ .Values.core.database.port | quote }}
+  DB_NAME: {{ .Values.core.database.name | quote }}
+
+  # Gateway JWT
+  AUTH_GATEWAY_JWT_HEADER: {{ .Values.core.gateway.jwtHeader | quote }}
+
+  # CORS
+  CORS_ORIGIN: {{ .Values.core.cors.origin | quote }}
+  CORS_METHODS: {{ .Values.core.cors.methods | quote }}
+  CORS_CREDENTIALS: {{ .Values.core.cors.credentials | quote }}
+
+  # Storage Configuration
+  STORAGE_PATH: {{ .Values.core.storage.path | quote }}
+  STORAGE_MAX_FILE_SIZE: {{ .Values.core.storage.maxFileSize | quote }}
+  STORAGE_ALLOWED_FILE_TYPES: {{ .Values.core.storage.allowedFileTypes | toJson | quote }}
