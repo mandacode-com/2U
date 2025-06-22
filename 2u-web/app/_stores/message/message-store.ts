@@ -48,7 +48,6 @@ export const useMessageStore = create<State & Action>((set) => ({
   updateCreatedAt: (createdAt) => set({ createdAt }),
   updateUpdatedAt: (updatedAt) => set({ updatedAt }),
   updateMessage: (data) => {
-    console.log("Updating message with data:", data.content);
     set({
       id: data.id,
       content: data.content,
