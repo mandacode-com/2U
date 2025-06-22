@@ -47,7 +47,8 @@ export const useMessageStore = create<State & Action>((set) => ({
   updateHint: (hint) => set({ hint }),
   updateCreatedAt: (createdAt) => set({ createdAt }),
   updateUpdatedAt: (updatedAt) => set({ updatedAt }),
-  updateMessage: (data) =>
+  updateMessage: (data) => {
+    console.log("Updating message with data:", data.content);
     set({
       id: data.id,
       content: data.content,
@@ -56,7 +57,8 @@ export const useMessageStore = create<State & Action>((set) => ({
       hint: data.hint ?? null,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
-    }),
+    });
+  },
   reset: () =>
     set({
       id: undefined,

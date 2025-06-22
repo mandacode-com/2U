@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import MessageViewer from "@/components/tiptap-custom/viewer";
-import { JSONContent } from "@tiptap/react";
 import LetterEnvelope from "@/components/envelope/letter-envelope";
 import styles from "./bg-themes.module.css";
 import { generateEnvelopeColors } from "@/components/envelope/generate-envelope-color";
@@ -23,16 +22,16 @@ type Props = {
 
 export default function MessageView({ mid, messageMeta }: Props) {
   const content = useMessageStore((state) => state.content);
+  const updateHint = useMessageStore((state) => state.updateHint);
+  const updateCreatedAt = useMessageStore((state) => state.updateCreatedAt);
+  const updateUpdatedAt = useMessageStore((state) => state.updateUpdatedAt);
 
   const { letterColor, innerColor, topColor, sidalColor, bottomColor } =
     generateEnvelopeColors("#ffffff", "#fff6ba");
 
-  const [showPassword, setShowPassword] = useState(false);
   const [openEnvelope, setOpenEnvelope] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [animationDone, setAnimationDone] = useState(true);
-  const [message, setMessage] = useState<JSONContent | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [passwordChangeModalOpen, setPasswordChangeModalOpen] = useState(false);
   const passwordChangeModalRef = useRef<HTMLDivElement>(null);
   const readMessageFormRef = useRef<HTMLDivElement>(null);
@@ -53,6 +52,27 @@ export default function MessageView({ mid, messageMeta }: Props) {
     }, 500); // Match the animation duration
   }, []);
 
+  useEffect(() => {
+    updateHint(messageMeta.hint ?? "");
+    updateCreatedAt(messageMeta.createdAt);
+    updateUpdatedAt(messageMeta.updatedAt);
+  }, [
+    messageMeta.createdAt,
+    messageMeta.hint,
+    messageMeta.updatedAt,
+    updateCreatedAt,
+    updateHint,
+    updateUpdatedAt,
+  ]);
+
+  useEffect(() => {
+    if (content) {
+      setOpenEnvelope(true);
+      setShowMessage(true);
+      setAnimationDone(true);
+    }
+  }, [content]);
+
   return (
     <div
       className={`relative flex items-center justify-center h-full min-h-screen ${styles["polka-dot"]}`}
@@ -61,8 +81,6 @@ export default function MessageView({ mid, messageMeta }: Props) {
           setOpenEnvelope(false);
           setShowMessage(false);
           setAnimationDone(true);
-          setMessage(null);
-          setError(null);
         }
       }}
     >
@@ -121,8 +139,6 @@ export default function MessageView({ mid, messageMeta }: Props) {
                   setShowMessage(false);
                   setOpenEnvelope(false);
                   setAnimationDone(true);
-                  setMessage(null);
-                  setError(null);
                 }}
                 ref={readMessageFormRef}
               />

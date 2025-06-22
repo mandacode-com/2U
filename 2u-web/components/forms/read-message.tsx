@@ -20,8 +20,8 @@ export default function ReadMessageForm({
   const password = useMessageAuthStore((state) => state.password);
   const updatePassword = useMessageAuthStore((state) => state.updatePassword);
   const hint = useMessageStore((state) => state.hint);
-  const reset = useMessageStore((state) => state.reset);
   const updateMessage = useMessageStore((state) => state.updateMessage);
+  const updateContent = useMessageStore((state) => state.updateContent);
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -59,12 +59,8 @@ export default function ReadMessageForm({
         throw new Error("메시지 데이터 형식이 잘못되었습니다.");
       }
 
-      reset(); // Reset the message store
+      setSuccess("메시지를 성공적으로 가져왔습니다.");
       updateMessage(parsedData.data); // Update the message store with new data
-
-      if (onClose) {
-        onClose();
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "알 수 없는 오류 발생");
     } finally {
